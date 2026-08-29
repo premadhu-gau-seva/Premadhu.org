@@ -64,19 +64,19 @@ export default function Footer() {
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-primary flex-shrink-0" />
                 <a
-                  href="tel:+919098924643"
+                  href="tel:+916232297979"
                   className="hover:text-primary transition-colors"
                 >
-                  +91-9098924643
+                  +91 6232297979
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
                 <a
-                  href="mailto:premadhu@outlook.in"
+                  href="mailto:premadhu10@gmail.com"
                   className="hover:text-primary transition-colors"
                 >
-                  premadhu@outlook.in
+                  premadhu10@gmail.com
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
@@ -104,7 +104,9 @@ export default function Footer() {
             <div className="flex gap-3">
               {/* Facebook */}
               <a
-                href="#"
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="w-10 h-10 rounded-full bg-primary hover:bg-secondary flex items-center justify-center text-white transition-all hover:-translate-y-1"
               >
@@ -112,19 +114,11 @@ export default function Footer() {
                   <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
                 </svg>
               </a>
-              {/* Twitter / X */}
-              <a
-                href="#"
-                aria-label="Twitter / X"
-                className="w-10 h-10 rounded-full bg-primary hover:bg-secondary flex items-center justify-center text-white transition-all hover:-translate-y-1"
-              >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                </svg>
-              </a>
               {/* Instagram */}
               <a
-                href="#"
+                href="https://www.instagram.com/premadhu_2024/?utm_source=ig_web_button_share_sheet"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Instagram"
                 className="w-10 h-10 rounded-full bg-primary hover:bg-secondary flex items-center justify-center text-white transition-all hover:-translate-y-1"
               >
@@ -134,7 +128,9 @@ export default function Footer() {
               </a>
               {/* YouTube */}
               <a
-                href="#"
+                href="https://www.youtube.com/channel/UCV1XYch4XPD1P7nTtQ9tIbw"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="YouTube"
                 className="w-10 h-10 rounded-full bg-primary hover:bg-secondary flex items-center justify-center text-white transition-all hover:-translate-y-1"
               >

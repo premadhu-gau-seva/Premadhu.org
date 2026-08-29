@@ -20,10 +20,10 @@ export default function Contact() {
       title: "Email",
       content: (
         <a
-          href="mailto:Premadhu10@gmail.com"
+          href="mailto:premadhu10@gmail.com"
           className="hover:text-primary transition-colors block"
         >
-          Premadhu10@gmail.com
+          premadhu10@gmail.com
         </a>
       ),
     },
@@ -31,20 +31,12 @@ export default function Contact() {
       icon: Phone,
       title: "Phone",
       content: (
-        <div className="space-y-1">
-          <a
-            href="tel:+919098924643"
-            className="hover:text-primary transition-colors block"
-          >
-            +91-9098924643
-          </a>
-          <a
-            href="tel:+919301642833"
-            className="hover:text-primary transition-colors block"
-          >
-            +91-9301642833
-          </a>
-        </div>
+        <a
+          href="tel:+916232297979"
+          className="hover:text-primary transition-colors block"
+        >
+          +91 6232297979
+        </a>
       ),
     },
     {
