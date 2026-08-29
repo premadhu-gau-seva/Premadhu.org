@@ -6,14 +6,14 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
-  { name: "Home", href: "#home" },
-  { name: "About Us", href: "#about" },
-  { name: "Mission", href: "#mission" },
-  { name: "Team", href: "#team" },
-  { name: "Our Work", href: "#work" },
-  { name: "Get Involved", href: "#get-involved" },
-  { name: "Contact", href: "#contact" },
-  { name: "Feedback", href: "#feedback" },
+  { name: "Home", href: "/#home" },
+  { name: "About Us", href: "/#about" },
+  { name: "Mission", href: "/#mission" },
+  { name: "Team", href: "/#team" },
+  { name: "Our Work", href: "/#work" },
+  { name: "Get Involved", href: "/#get-involved" },
+  { name: "Contact", href: "/#contact" },
+  { name: "Feedback", href: "/#feedback" },
 ];
 
 export default function Navbar() {
@@ -43,7 +43,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Logo */}
         <Link
-          href="#home"
+          href="/#home"
           className="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
         >
           <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 transition-transform duration-300 group-hover:scale-105">

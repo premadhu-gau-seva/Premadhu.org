@@ -25,7 +25,7 @@ export default function Hero() {
             {/* Sanskrit Quote Box */}
             <div className="bg-white p-5 sm:p-6 rounded-2xl border-l-4 border-primary shadow-md hover:shadow-lg transition-shadow max-w-2xl mx-auto lg:mx-0 text-left">
               <p className="text-lg sm:text-xl font-semibold text-primary mb-2">
-                "गाय सम्पूर्ण प्राणियों की माता है एवं सबको सुख देने वाली है।"
+                &quot;गाय सम्पूर्ण प्राणियों की माता है एवं सबको सुख देने वाली है।&quot;
               </p>
               <span className="text-sm sm:text-base text-text-light italic block">
                 (The cow is the mother of all beings and brings happiness to everyone.)

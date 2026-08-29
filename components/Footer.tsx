@@ -4,11 +4,11 @@ import { Phone, Mail, Globe } from "lucide-react";
 
 export default function Footer() {
   const quickLinks = [
-    { name: "Home", href: "#home" },
-    { name: "About Us", href: "#about" },
-    { name: "Mission", href: "#mission" },
-    { name: "Our Work", href: "#work" },
-    { name: "Get Involved", href: "#get-involved" },
+    { name: "Home", href: "/#home" },
+    { name: "About Us", href: "/#about" },
+    { name: "Mission", href: "/#mission" },
+    { name: "Our Work", href: "/#work" },
+    { name: "Get Involved", href: "/#get-involved" },
   ];
 
   return (
