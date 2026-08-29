@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import {
   Plus,
   Pencil,
@@ -15,14 +16,20 @@ import {
   User,
   Briefcase,
   RefreshCw,
+  Camera,
+  ImageIcon,
 } from "lucide-react";
 import { Member } from "@/lib/db";
+import { compressImage } from "@/lib/imageUtils";
 
 interface MemberFormData {
   name: string;
   designation: string;
   bio: string;
   sort_order: number | string;
+  photo_url: string | null;
+  photoFile: File | null;
+  photoPreview: string | null;
 }
 
 const INITIAL_FORM_DATA: MemberFormData = {
@@ -30,12 +37,16 @@ const INITIAL_FORM_DATA: MemberFormData = {
   designation: "",
   bio: "",
   sort_order: "",
+  photo_url: null,
+  photoFile: null,
+  photoPreview: null,
 };
 
 export default function AdminMembersManager() {
   const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [feedback, setFeedback] = useState<{
     type: "success" | "error";
     message: string;
@@ -44,10 +55,12 @@ export default function AdminMembersManager() {
   // Add Form State
   const [formData, setFormData] = useState<MemberFormData>(INITIAL_FORM_DATA);
   const [showAddForm, setShowAddForm] = useState(false);
+  const addFileInputRef = useRef<HTMLInputElement>(null);
 
   // Edit Modal State
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const [editFormData, setEditFormData] = useState<MemberFormData>(INITIAL_FORM_DATA);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   // Delete Confirmation Modal State
   const [deletingMember, setDeletingMember] = useState<Member | null>(null);
@@ -100,6 +113,81 @@ export default function AdminMembersManager() {
     }
   }, [feedback]);
 
+  // Handle Photo File Selection & Client-side Compression
+  const handlePhotoSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    isEdit: boolean
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setFeedback({
+        type: "error",
+        message: "Please select an image file (JPEG, PNG, WebP).",
+      });
+      return;
+    }
+
+    try {
+      setIsUploadingPhoto(true);
+      // Compress and resize image in browser
+      const compressed = await compressImage(file, 600, 0.82);
+      const previewUrl = URL.createObjectURL(compressed);
+
+      if (isEdit) {
+        setEditFormData((prev) => ({
+          ...prev,
+          photoFile: compressed,
+          photoPreview: previewUrl,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          photoFile: compressed,
+          photoPreview: previewUrl,
+        }));
+      }
+    } catch (err) {
+      console.error("Compression error:", err);
+      // Fallback to original file
+      const previewUrl = URL.createObjectURL(file);
+      if (isEdit) {
+        setEditFormData((prev) => ({
+          ...prev,
+          photoFile: file,
+          photoPreview: previewUrl,
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          photoFile: file,
+          photoPreview: previewUrl,
+        }));
+      }
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  // Helper to upload file to Blob storage API
+  const uploadPhotoToBlob = async (file: File): Promise<string> => {
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: uploadData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to upload image to blob storage");
+    }
+
+    return data.url;
+  };
+
   // Handle Add Member Submit
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +201,13 @@ export default function AdminMembersManager() {
 
     try {
       setIsSubmitting(true);
+      let uploadedPhotoUrl = formData.photo_url;
+
+      // If a new photo file was picked, upload it to Vercel Blob first
+      if (formData.photoFile) {
+        uploadedPhotoUrl = await uploadPhotoToBlob(formData.photoFile);
+      }
+
       const res = await fetch("/api/members", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -120,6 +215,7 @@ export default function AdminMembersManager() {
           name: formData.name.trim(),
           designation: formData.designation.trim(),
           bio: formData.bio.trim() || null,
+          photo_url: uploadedPhotoUrl,
           sort_order:
             formData.sort_order === ""
               ? members.length + 1
@@ -158,6 +254,9 @@ export default function AdminMembersManager() {
       designation: member.designation,
       bio: member.bio || "",
       sort_order: member.sort_order,
+      photo_url: member.photo_url,
+      photoFile: null,
+      photoPreview: member.photo_url,
     });
   };
 
@@ -175,6 +274,13 @@ export default function AdminMembersManager() {
 
     try {
       setIsSubmitting(true);
+      let finalPhotoUrl = editFormData.photo_url;
+
+      // If a new photo file was picked, upload it to Vercel Blob first
+      if (editFormData.photoFile) {
+        finalPhotoUrl = await uploadPhotoToBlob(editFormData.photoFile);
+      }
+
       const res = await fetch(`/api/members/${editingMember.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -182,6 +288,7 @@ export default function AdminMembersManager() {
           name: editFormData.name.trim(),
           designation: editFormData.designation.trim(),
           bio: editFormData.bio.trim() || null,
+          photo_url: finalPhotoUrl,
           sort_order:
             editFormData.sort_order === ""
               ? 0
@@ -265,7 +372,7 @@ export default function AdminMembersManager() {
           <button
             type="button"
             onClick={() => setFeedback(null)}
-            className="p-1 hover:bg-black/5 rounded-lg text-gray-500 hover:text-gray-700"
+            className="p-1 hover:bg-black/5 rounded-lg text-gray-500 hover:text-gray-700 cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -280,7 +387,7 @@ export default function AdminMembersManager() {
             <span>Members Directory</span>
           </h2>
           <p className="text-sm text-text-light mt-0.5">
-            Manage all organization members, assign roles, and set display order.
+            Manage all organization members, photos, roles, and sort order.
           </p>
         </div>
 
@@ -338,13 +445,80 @@ export default function AdminMembersManager() {
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+              className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           <form onSubmit={handleAddSubmit} className="space-y-5">
+            {/* Photo Upload Row */}
+            <div className="p-4 bg-bg-light/40 rounded-2xl border border-primary/20">
+              <label className="block text-xs font-bold uppercase tracking-wider text-text-dark mb-2 flex items-center gap-1.5">
+                <Camera className="w-3.5 h-3.5 text-primary" />
+                <span>Member Photo (Optional)</span>
+              </label>
+
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                {formData.photoPreview ? (
+                  <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-primary shadow-sm flex-shrink-0">
+                    <Image
+                      src={formData.photoPreview}
+                      alt="Preview"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 flex-shrink-0">
+                    <ImageIcon className="w-8 h-8" />
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                  <input
+                    ref={addFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handlePhotoSelect(e, false)}
+                    className="hidden"
+                  />
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <button
+                      type="button"
+                      onClick={() => addFileInputRef.current?.click()}
+                      disabled={isUploadingPhoto}
+                      className="px-3.5 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 text-text-dark text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
+                    >
+                      {formData.photoPreview ? "Change Photo" : "Upload Photo"}
+                    </button>
+                    {formData.photoPreview && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            photo_url: null,
+                            photoFile: null,
+                            photoPreview: null,
+                          });
+                          if (addFileInputRef.current) {
+                            addFileInputRef.current.value = "";
+                          }
+                        }}
+                        className="px-3 py-1.5 text-red-600 hover:bg-red-50 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-text-light">
+                    Auto-compressed before upload. Recommended square JPG, PNG, or WebP.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Name */}
               <div>
@@ -430,7 +604,7 @@ export default function AdminMembersManager() {
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isUploadingPhoto}
                 className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-semibold text-sm rounded-xl hover:bg-primary-dark shadow-sm hover:shadow transition-all duration-200 cursor-pointer disabled:opacity-50"
               >
                 {isSubmitting ? (
@@ -450,7 +624,7 @@ export default function AdminMembersManager() {
         </div>
       )}
 
-      {/* Members List Table / Cards */}
+      {/* Members List Table */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center text-text-light flex flex-col items-center justify-center gap-3">
@@ -471,7 +645,7 @@ export default function AdminMembersManager() {
               <thead>
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] font-bold uppercase tracking-wider text-text-light">
                   <th className="py-3.5 px-4 sm:px-6 w-16 text-center">Order</th>
-                  <th className="py-3.5 px-4 sm:px-6">Name</th>
+                  <th className="py-3.5 px-4 sm:px-6">Member</th>
                   <th className="py-3.5 px-4 sm:px-6">Designation</th>
                   <th className="py-3.5 px-4 sm:px-6 hidden md:table-cell">Bio</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
@@ -490,9 +664,28 @@ export default function AdminMembersManager() {
                       </span>
                     </td>
 
-                    {/* Name */}
-                    <td className="py-4 px-4 sm:px-6 font-semibold text-text-dark">
-                      {member.name}
+                    {/* Member with Photo Thumbnail */}
+                    <td className="py-4 px-4 sm:px-6">
+                      <div className="flex items-center gap-3">
+                        {member.photo_url ? (
+                          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-primary/40 shadow-xs flex-shrink-0">
+                            <Image
+                              src={member.photo_url}
+                              alt={member.name}
+                              fill
+                              sizes="40px"
+                              className="object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                            {member.name.charAt(0)}
+                          </div>
+                        )}
+                        <span className="font-semibold text-text-dark">
+                          {member.name}
+                        </span>
+                      </div>
                     </td>
 
                     {/* Designation */}
@@ -544,7 +737,7 @@ export default function AdminMembersManager() {
       {/* Edit Member Modal */}
       {editingMember && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-lg p-6 sm:p-8 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl w-full max-w-lg p-6 sm:p-8 animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
               <div>
                 <h3 className="text-lg font-bold text-text-dark">
@@ -557,13 +750,77 @@ export default function AdminMembersManager() {
               <button
                 type="button"
                 onClick={() => setEditingMember(null)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleEditSubmit} className="space-y-4">
+              {/* Photo Upload in Edit Modal */}
+              <div className="p-4 bg-bg-light/40 rounded-2xl border border-primary/20">
+                <label className="block text-xs font-bold uppercase tracking-wider text-text-dark mb-2 flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-primary" />
+                  <span>Member Photo</span>
+                </label>
+
+                <div className="flex items-center gap-4">
+                  {editFormData.photoPreview ? (
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-primary shadow-sm flex-shrink-0">
+                      <Image
+                        src={editFormData.photoPreview}
+                        alt="Preview"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 flex-shrink-0">
+                      <ImageIcon className="w-7 h-7" />
+                    </div>
+                  )}
+
+                  <div className="flex-1 space-y-1.5">
+                    <input
+                      ref={editFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handlePhotoSelect(e, true)}
+                      className="hidden"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => editFileInputRef.current?.click()}
+                        disabled={isUploadingPhoto}
+                        className="px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 text-text-dark text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
+                      >
+                        {editFormData.photoPreview ? "Change Photo" : "Upload Photo"}
+                      </button>
+                      {editFormData.photoPreview && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditFormData({
+                              ...editFormData,
+                              photo_url: null,
+                              photoFile: null,
+                              photoPreview: null,
+                            });
+                            if (editFileInputRef.current) {
+                              editFileInputRef.current.value = "";
+                            }
+                          }}
+                          className="px-2.5 py-1.5 text-red-600 hover:bg-red-50 text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Name */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-text-dark mb-1.5">
@@ -642,7 +899,7 @@ export default function AdminMembersManager() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUploadingPhoto}
                   className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white font-semibold text-sm rounded-xl hover:bg-primary-dark shadow-sm hover:shadow transition-all duration-200 cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (

@@ -55,7 +55,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, designation, bio, sort_order } = body;
+    const { name, designation, bio, photo_url, sort_order } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -81,11 +81,19 @@ export async function PUT(
         ? bio.trim()
         : null;
 
+    const cleanPhotoUrl =
+      photo_url !== undefined
+        ? photo_url && typeof photo_url === "string" && photo_url.trim().length > 0
+          ? photo_url.trim()
+          : null
+        : null;
+
     const { rows } = await sql<Member>`
       UPDATE members
       SET name = ${name.trim()},
           designation = ${designation.trim()},
           bio = ${cleanBio},
+          photo_url = ${cleanPhotoUrl},
           sort_order = ${parsedSortOrder}
       WHERE id = ${memberId}
       RETURNING id, name, designation, bio, photo_url, sort_order, created_at

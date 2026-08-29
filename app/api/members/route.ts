@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, designation, bio, sort_order } = body;
+    const { name, designation, bio, photo_url, sort_order } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -58,9 +58,14 @@ export async function POST(request: Request) {
         ? bio.trim()
         : null;
 
+    const cleanPhotoUrl =
+      photo_url && typeof photo_url === "string" && photo_url.trim().length > 0
+        ? photo_url.trim()
+        : null;
+
     const { rows } = await sql<Member>`
-      INSERT INTO members (name, designation, bio, sort_order)
-      VALUES (${name.trim()}, ${designation.trim()}, ${cleanBio}, ${parsedSortOrder})
+      INSERT INTO members (name, designation, bio, photo_url, sort_order)
+      VALUES (${name.trim()}, ${designation.trim()}, ${cleanBio}, ${cleanPhotoUrl}, ${parsedSortOrder})
       RETURNING id, name, designation, bio, photo_url, sort_order, created_at
     `;
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Users } from "lucide-react";
 import { sql, Member } from "@/lib/db";
@@ -19,7 +20,7 @@ export default async function MembersPage() {
 
   try {
     const result = await sql<Member>`
-      SELECT id, name, designation, sort_order
+      SELECT id, name, designation, bio, photo_url, sort_order
       FROM members
       ORDER BY sort_order ASC, name ASC
     `;
@@ -73,14 +74,32 @@ export default async function MembersPage() {
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 hover:border-primary/40 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center flex flex-col items-center justify-center group"
+                  className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-100 hover:border-primary/40 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center flex flex-col items-center group"
                 >
-                  <h2 className="text-xl font-bold text-text-dark mb-2 group-hover:text-primary transition-colors">
+                  {/* Circular Avatar if photo_url is set */}
+                  {member.photo_url ? (
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-primary mb-5 shadow-inner flex-shrink-0">
+                      <Image
+                        src={member.photo_url}
+                        alt={member.name}
+                        fill
+                        sizes="(max-width: 640px) 112px, 128px"
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : null}
+
+                  <h2 className="text-xl font-bold text-text-dark mb-1 group-hover:text-primary transition-colors">
                     {member.name}
                   </h2>
-                  <div className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider">
+                  <div className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider mb-2">
                     {member.designation}
                   </div>
+                  {member.bio && (
+                    <p className="text-text-light text-xs sm:text-sm leading-relaxed mt-1">
+                      {member.bio}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
