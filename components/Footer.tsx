@@ -147,8 +147,14 @@ export default function Footer() {
         </div>
 
         {/* Copyright Bottom Bar */}
-        <div className="pt-8 text-center text-sm text-gray-400">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm text-gray-400">
           <p>© 2025 Premadhu Gau Seva Samiti. All rights reserved.</p>
+          <Link
+            href="/admin"
+            className="text-gray-500 hover:text-gray-300 text-xs transition-colors"
+          >
+            Admin
+          </Link>
         </div>
       </div>
     </footer>
