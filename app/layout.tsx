@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const poppins = Poppins({
   subsets: ["latin", "devanagari"],
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="en" className={`${poppins.variable} scroll-smooth`}>
       <body className="font-sans antialiased text-[#2E2E2E] bg-white selection:bg-[#4CAF50]/20 selection:text-[#2E7D32]">
         {children}
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID!} />
       </body>
     </html>
   );
