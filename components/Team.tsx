@@ -11,22 +11,10 @@ export default function Team() {
       image: "/Priyanka.jpeg",
     },
     {
-      name: "Pushpendra Tiwari",
-      role: "Vice President",
-      bio: "Marketing professional, working for social and economical development in rural areas",
-      image: "/Pushpendra.jpeg",
-    },
-    {
       name: "Lalit Tiwari",
       role: "Secretary",
       bio: "Businessman in reality sector, runs blood donation camps and financial aids to poor",
       image: "/Lalit.jpeg",
-    },
-    {
-      name: "Arti Tiwari",
-      role: "Assistant Secretary",
-      bio: "House wife and Social activist, vocal for women empowerment",
-      image: "/Arti.jpeg",
     },
     {
       name: "Dr Amit Nigam",
