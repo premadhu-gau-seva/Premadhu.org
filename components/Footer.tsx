@@ -61,15 +61,23 @@ export default function Footer() {
               Contact Info
             </h3>
             <div className="space-y-3 text-sm text-gray-300">
-              <p className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-                <a
-                  href="tel:+916232297979"
-                  className="hover:text-primary transition-colors"
-                >
-                  +91 6232297979
-                </a>
-              </p>
+              <div className="flex items-start gap-2.5">
+                <Phone className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <a
+                    href="tel:+916232297979"
+                    className="hover:text-primary transition-colors block"
+                  >
+                    +91 6232297979
+                  </a>
+                  <a
+                    href="tel:+919977699955"
+                    className="hover:text-primary transition-colors block"
+                  >
+                    +91 9977699955
+                  </a>
+                </div>
+              </div>
               <p className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
                 <a

@@ -31,12 +31,20 @@ export default function Contact() {
       icon: Phone,
       title: "Phone",
       content: (
-        <a
-          href="tel:+916232297979"
-          className="hover:text-primary transition-colors block"
-        >
-          +91 6232297979
-        </a>
+        <div className="space-y-1">
+          <a
+            href="tel:+916232297979"
+            className="hover:text-primary transition-colors block"
+          >
+            +91 6232297979
+          </a>
+          <a
+            href="tel:+919977699955"
+            className="hover:text-primary transition-colors block"
+          >
+            +91 9977699955
+          </a>
+        </div>
       ),
     },
     {
