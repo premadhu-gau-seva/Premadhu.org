@@ -11,10 +11,22 @@ export default function Team() {
       image: "/Priyanka.jpeg",
     },
     {
+      name: "Sapna Nigam",
+      role: "Vice President",
+      bio: "A doctor by profession and active in social and community welfare",
+      image: "/Sapna.jpeg",
+    },
+    {
       name: "Lalit Tiwari",
       role: "Secretary",
       bio: "Businessman in reality sector, runs blood donation camps and financial aids to poor",
       image: "/Lalit.jpeg",
+    },
+    {
+      name: "Amit Kumar Shrivastav",
+      role: "Assistant Secretary",
+      bio: "Policy Advisor, dedicated to social welfare and development",
+      image: "/Amit Shrivastav.jpeg",
     },
     {
       name: "Dr Amit Nigam",

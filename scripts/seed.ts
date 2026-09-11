@@ -43,7 +43,7 @@ async function seed() {
         sort_order: 1,
       },
       {
-        name: "Pushpendra Tiwari",
+        name: "Sapna Nigam",
         designation: "Vice President",
         sort_order: 2,
       },
@@ -53,7 +53,7 @@ async function seed() {
         sort_order: 3,
       },
       {
-        name: "Arti Tiwari",
+        name: "Amit Kumar Shrivastav",
         designation: "Assistant Secretary",
         sort_order: 4,
       },
