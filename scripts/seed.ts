@@ -38,9 +38,14 @@ async function seed() {
 
     const sampleMembers = [
       {
+        name: "परम पूज्य गुरुदेव अतुल पाण्डेय जी",
+        designation: "संरक्षक एवं मार्गदर्शक",
+        sort_order: 1,
+      },
+      {
         name: "Priyanka Tiwari",
         designation: "President",
-        sort_order: 1,
+        sort_order: 2,
       },
       {
         name: "Sapna Nigam",

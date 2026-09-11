@@ -5,6 +5,12 @@ import { ArrowRight } from "lucide-react";
 export default function Team() {
   const teamMembers = [
     {
+      name: "परम पूज्य गुरुदेव अतुल पाण्डेय जी",
+      role: "संरक्षक एवं मार्गदर्शक",
+      bio: "शिव साधक एवं उपासक",
+      image: "/Atul Pandey ji.jpeg",
+    },
+    {
       name: "Priyanka Tiwari",
       role: "President",
       bio: "A teacher by profession and highly active in many social activities",
