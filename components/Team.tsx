@@ -5,9 +5,8 @@ import { ArrowRight } from "lucide-react";
 export default function Team() {
   const teamMembers = [
     {
-      name: "परम पूज्य गुरुदेव अतुल पाण्डेय जी",
+      name: "शिव साधक अतुल पांडेय जी महाराज",
       role: "संरक्षक एवं मार्गदर्शक",
-      bio: "शिव साधक एवं उपासक",
       image: "/Atul Pandey ji.jpeg",
     },
     {
@@ -91,9 +90,11 @@ export default function Team() {
               <div className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
                 {member.role}
               </div>
-              <p className="text-text-light text-sm leading-relaxed">
-                {member.bio}
-              </p>
+              {member.bio && (
+                <p className="text-text-light text-sm leading-relaxed">
+                  {member.bio}
+                </p>
+              )}
             </div>
           ))}
         </div>

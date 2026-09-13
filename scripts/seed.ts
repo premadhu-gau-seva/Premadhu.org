@@ -38,7 +38,7 @@ async function seed() {
 
     const sampleMembers = [
       {
-        name: "परम पूज्य गुरुदेव अतुल पाण्डेय जी",
+        name: "शिव साधक अतुल पांडेय जी महाराज",
         designation: "संरक्षक एवं मार्गदर्शक",
         sort_order: 1,
       },
