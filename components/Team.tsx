@@ -40,6 +40,18 @@ export default function Team() {
       image: "/Amit.jpeg",
     },
     {
+      name: "Ajay Bajwa",
+      role: "Fundraising Head",
+      bio: "Business Man and Dedicated to Social Works, Runs Fundraising Camps for Welfare of People and Animals",
+      image: "/Ajay Bajwa.jpeg",
+    },
+    {
+      name: "Poonam S",
+      role: "Donor Relations Coordinator",
+      bio: "House Wife and Compassionate social worker dedicated to community welfare",
+      image: "/Poonam.jpeg",
+    },
+    {
       name: "Rajesh Tiwari",
       role: "Member",
       bio: "Goat former and working for woman empowerment in rural areas",

@@ -68,29 +68,39 @@ async function seed() {
         sort_order: 5,
       },
       {
+        name: "Ajay Bajwa",
+        designation: "Fundraising Head",
+        sort_order: 6,
+      },
+      {
+        name: "Poonam S",
+        designation: "Donor Relations Coordinator",
+        sort_order: 7,
+      },
+      {
         name: "Rajesh Tiwari",
         designation: "Member",
-        sort_order: 6,
+        sort_order: 8,
       },
       {
         name: "Vidyavati Tiwari",
         designation: "Member",
-        sort_order: 7,
+        sort_order: 9,
       },
       {
         name: "Ramesh Sharma",
         designation: "Volunteer Coordinator",
-        sort_order: 8,
+        sort_order: 10,
       },
       {
         name: "Sunita Patel",
         designation: "Gau Seva Volunteer",
-        sort_order: 9,
+        sort_order: 11,
       },
       {
         name: "Anil Kumar",
         designation: "Animal Health Associate",
-        sort_order: 10,
+        sort_order: 12,
       },
     ];
 
