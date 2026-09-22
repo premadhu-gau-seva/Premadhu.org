@@ -40,67 +40,93 @@ async function seed() {
       {
         name: "शिव साधक अतुल पांडेय जी महाराज",
         designation: "संरक्षक एवं मार्गदर्शक",
+        bio: null,
+        photo_url: "/Atul Pandey ji.jpeg",
         sort_order: 1,
       },
       {
         name: "Priyanka Tiwari",
         designation: "President",
+        bio: "A teacher by profession and highly active in many social activities",
+        photo_url: "/Priyanka.jpeg",
         sort_order: 2,
       },
       {
         name: "Sapna Nigam",
         designation: "Vice President",
-        sort_order: 2,
+        bio: "A doctor by profession and active in social and community welfare",
+        photo_url: "/Sapna.jpeg",
+        sort_order: 3,
       },
       {
         name: "Lalit Tiwari",
         designation: "Secretary",
-        sort_order: 3,
+        bio: "Businessman in reality sector, runs blood donation camps and financial aids to poor",
+        photo_url: "/Lalit.jpeg",
+        sort_order: 4,
       },
       {
         name: "Amit Kumar Shrivastav",
         designation: "Assistant Secretary",
-        sort_order: 4,
+        bio: "Policy Advisor, dedicated to social welfare and development",
+        photo_url: "/Amit Shrivastav.jpeg",
+        sort_order: 5,
       },
       {
         name: "Dr Amit Nigam",
         designation: "Treasurer",
-        sort_order: 5,
+        bio: "Professional medical practitioner and active social activist for shelterless people",
+        photo_url: "/Amit.jpeg",
+        sort_order: 6,
       },
       {
         name: "Ajay Bajwa",
         designation: "Fundraising Head",
-        sort_order: 6,
+        bio: "Business Man and Dedicated to Social Works, Runs Fundraising Camps for Welfare of People and Animals",
+        photo_url: "/Ajay Bajwa.jpeg",
+        sort_order: 7,
       },
       {
         name: "Poonam S",
         designation: "Donor Relations Coordinator",
-        sort_order: 7,
+        bio: "House Wife and Compassionate social worker dedicated to community welfare",
+        photo_url: "/Poonam.jpeg",
+        sort_order: 8,
       },
       {
         name: "Rajesh Tiwari",
         designation: "Member",
-        sort_order: 8,
+        bio: "Goat former and working for woman empowerment in rural areas",
+        photo_url: "/Rakesh.jpeg",
+        sort_order: 9,
       },
       {
         name: "Vidyavati Tiwari",
         designation: "Member",
-        sort_order: 9,
+        bio: "Housewife, highly active in spiritual and social works",
+        photo_url: "/Vidyavati.jpeg",
+        sort_order: 10,
       },
       {
         name: "Ramesh Sharma",
         designation: "Volunteer Coordinator",
-        sort_order: 10,
+        bio: "Dedicated volunteer managing day-to-day operations and community outreach",
+        photo_url: "/male.png",
+        sort_order: 11,
       },
       {
         name: "Sunita Patel",
         designation: "Gau Seva Volunteer",
-        sort_order: 11,
+        bio: "Passionate animal lover actively assisting in cow care and feeding programs",
+        photo_url: "/female.png",
+        sort_order: 12,
       },
       {
         name: "Anil Kumar",
         designation: "Animal Health Associate",
-        sort_order: 12,
+        bio: "Assisting in veterinary care, medication schedules, and regular cow health checkups",
+        photo_url: "/male.png",
+        sort_order: 13,
       },
     ];
 
@@ -114,9 +140,9 @@ async function seed() {
       console.log("Seeding sample members...");
       for (const member of sampleMembers) {
         await client.query(
-          `INSERT INTO members (name, designation, sort_order)
-           VALUES ($1, $2, $3)`,
-          [member.name, member.designation, member.sort_order]
+          `INSERT INTO members (name, designation, bio, photo_url, sort_order)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [member.name, member.designation, member.bio, member.photo_url, member.sort_order]
         );
       }
       console.log(`✓ Inserted ${sampleMembers.length} sample members.`);
@@ -126,16 +152,25 @@ async function seed() {
       );
       for (const member of sampleMembers) {
         const { rows } = await client.query(
-          "SELECT id FROM members WHERE name = $1 AND designation = $2",
+          "SELECT id, photo_url, bio FROM members WHERE name = $1 AND designation = $2",
           [member.name, member.designation]
         );
         if (rows.length === 0) {
           await client.query(
-            `INSERT INTO members (name, designation, sort_order)
-             VALUES ($1, $2, $3)`,
-            [member.name, member.designation, member.sort_order]
+            `INSERT INTO members (name, designation, bio, photo_url, sort_order)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [member.name, member.designation, member.bio, member.photo_url, member.sort_order]
           );
           console.log(`+ Added member: ${member.name} (${member.designation})`);
+        } else {
+          await client.query(
+            `UPDATE members
+             SET photo_url = COALESCE(photo_url, $1),
+                 bio = COALESCE(bio, $2),
+                 sort_order = $3
+             WHERE id = $4`,
+            [member.photo_url, member.bio, member.sort_order, rows[0].id]
+          );
         }
       }
     }

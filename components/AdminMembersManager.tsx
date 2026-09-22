@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Member } from "@/lib/db";
 import { compressImage } from "@/lib/imageUtils";
+import { resolveMemberPhoto } from "@/lib/memberPhotos";
 
 interface MemberFormData {
   name: string;
@@ -667,21 +668,24 @@ export default function AdminMembersManager() {
                     {/* Member with Photo Thumbnail */}
                     <td className="py-4 px-4 sm:px-6">
                       <div className="flex items-center gap-3">
-                        {member.photo_url ? (
-                          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-primary/40 shadow-xs flex-shrink-0">
-                            <Image
-                              src={member.photo_url}
-                              alt={member.name}
-                              fill
-                              sizes="40px"
-                              className="object-cover"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
-                            {member.name.charAt(0)}
-                          </div>
-                        )}
+                        {(() => {
+                          const photo = resolveMemberPhoto(member.name, member.photo_url);
+                          return photo ? (
+                            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-primary/40 shadow-xs flex-shrink-0">
+                              <Image
+                                src={photo}
+                                alt={member.name}
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-bg-light flex items-center justify-center text-primary font-bold text-xs flex-shrink-0">
+                              {member.name.charAt(0)}
+                            </div>
+                          );
+                        })()}
                         <span className="font-semibold text-text-dark">
                           {member.name}
                         </span>

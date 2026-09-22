@@ -1,10 +1,10 @@
 import { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Users } from "lucide-react";
 import { sql, Member } from "@/lib/db";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import MemberCard from "@/components/MemberCard";
 
 export const dynamic = "force-dynamic";
 
@@ -14,21 +14,142 @@ export const metadata: Metadata = {
     "Meet the dedicated members and volunteers of Premadhu Gau Seva Samiti working together for cow protection and welfare.",
 };
 
+const DEFAULT_MEMBERS: Member[] = [
+  {
+    id: 1,
+    name: "शिव साधक अतुल पांडेय जी महाराज",
+    designation: "संरक्षक एवं मार्गदर्शक",
+    bio: null,
+    photo_url: "/Atul Pandey ji.jpeg",
+    sort_order: 1,
+    created_at: new Date(),
+  },
+  {
+    id: 2,
+    name: "Priyanka Tiwari",
+    designation: "President",
+    bio: "A teacher by profession and highly active in many social activities",
+    photo_url: "/Priyanka.jpeg",
+    sort_order: 2,
+    created_at: new Date(),
+  },
+  {
+    id: 3,
+    name: "Sapna Nigam",
+    designation: "Vice President",
+    bio: "A doctor by profession and active in social and community welfare",
+    photo_url: "/Sapna.jpeg",
+    sort_order: 3,
+    created_at: new Date(),
+  },
+  {
+    id: 4,
+    name: "Lalit Tiwari",
+    designation: "Secretary",
+    bio: "Businessman in reality sector, runs blood donation camps and financial aids to poor",
+    photo_url: "/Lalit.jpeg",
+    sort_order: 4,
+    created_at: new Date(),
+  },
+  {
+    id: 5,
+    name: "Amit Kumar Shrivastav",
+    designation: "Assistant Secretary",
+    bio: "Policy Advisor, dedicated to social welfare and development",
+    photo_url: "/Amit Shrivastav.jpeg",
+    sort_order: 5,
+    created_at: new Date(),
+  },
+  {
+    id: 6,
+    name: "Dr Amit Nigam",
+    designation: "Treasurer",
+    bio: "Professional medical practitioner and active social activist for shelterless people",
+    photo_url: "/Amit.jpeg",
+    sort_order: 6,
+    created_at: new Date(),
+  },
+  {
+    id: 7,
+    name: "Ajay Bajwa",
+    designation: "Fundraising Head",
+    bio: "Business Man and Dedicated to Social Works, Runs Fundraising Camps for Welfare of People and Animals",
+    photo_url: "/Ajay Bajwa.jpeg",
+    sort_order: 7,
+    created_at: new Date(),
+  },
+  {
+    id: 8,
+    name: "Poonam S",
+    designation: "Donor Relations Coordinator",
+    bio: "House Wife and Compassionate social worker dedicated to community welfare",
+    photo_url: "/Poonam.jpeg",
+    sort_order: 8,
+    created_at: new Date(),
+  },
+  {
+    id: 9,
+    name: "Rajesh Tiwari",
+    designation: "Member",
+    bio: "Goat former and working for woman empowerment in rural areas",
+    photo_url: "/Rakesh.jpeg",
+    sort_order: 9,
+    created_at: new Date(),
+  },
+  {
+    id: 10,
+    name: "Vidyavati Tiwari",
+    designation: "Member",
+    bio: "Housewife, highly active in spiritual and social works",
+    photo_url: "/Vidyavati.jpeg",
+    sort_order: 10,
+    created_at: new Date(),
+  },
+  {
+    id: 11,
+    name: "Ramesh Sharma",
+    designation: "Volunteer Coordinator",
+    bio: "Dedicated volunteer managing day-to-day operations and community outreach",
+    photo_url: "/male.png",
+    sort_order: 10,
+    created_at: new Date(),
+  },
+  {
+    id: 12,
+    name: "Sunita Patel",
+    designation: "Gau Seva Volunteer",
+    bio: "Passionate animal lover actively assisting in cow care and feeding programs",
+    photo_url: "/female.png",
+    sort_order: 11,
+    created_at: new Date(),
+  },
+  {
+    id: 13,
+    name: "Anil Kumar",
+    designation: "Animal Health Associate",
+    bio: "Assisting in veterinary care, medication schedules, and regular cow health checkups",
+    photo_url: "/male.png",
+    sort_order: 12,
+    created_at: new Date(),
+  },
+];
+
 export default async function MembersPage() {
   let members: Member[] = [];
-  let error: string | null = null;
 
   try {
     const result = await sql<Member>`
-      SELECT id, name, designation, bio, photo_url, sort_order
+      SELECT id, name, designation, bio, photo_url, sort_order, created_at
       FROM members
       ORDER BY sort_order ASC, name ASC
     `;
     members = result.rows;
   } catch (err) {
     console.error("Error fetching members from database:", err);
-    error = "Unable to load members list at this time. Please try again later.";
   }
+
+  // Gracefully use default members if database is unpopulated or unreachable
+  const displayMembers = members.length > 0 ? members : DEFAULT_MEMBERS;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -61,56 +182,18 @@ export default async function MembersPage() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
-            <div className="max-w-md mx-auto p-4 bg-red-50 border border-red-200 rounded-xl text-center text-red-700 text-sm mb-12">
-              {error}
-            </div>
-          )}
-
           {/* Members Grid */}
-          {!error && members.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-              {members.map((member) => (
-                <div
-                  key={member.id}
-                  className="bg-white p-6 sm:p-7 rounded-2xl border border-gray-100 hover:border-primary/40 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 text-center flex flex-col items-center group"
-                >
-                  {/* Circular Avatar if photo_url is set */}
-                  {member.photo_url ? (
-                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-primary mb-5 shadow-inner flex-shrink-0">
-                      <Image
-                        src={member.photo_url}
-                        alt={member.name}
-                        fill
-                        sizes="(max-width: 640px) 112px, 128px"
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    </div>
-                  ) : null}
-
-                  <h2 className="text-xl font-bold text-text-dark mb-1 group-hover:text-primary transition-colors">
-                    {member.name}
-                  </h2>
-                  <div className="text-xs sm:text-sm font-semibold text-primary uppercase tracking-wider mb-2">
-                    {member.designation}
-                  </div>
-                  {member.bio && (
-                    <p className="text-text-light text-xs sm:text-sm leading-relaxed mt-1">
-                      {member.bio}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!error && members.length === 0 && (
-            <div className="text-center py-16">
-              <p className="text-text-light text-lg">No members found at this moment.</p>
-            </div>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
+            {displayMembers.map((member) => (
+              <MemberCard
+                key={member.id}
+                name={member.name}
+                designation={member.designation}
+                bio={member.bio}
+                photoUrl={member.photo_url}
+              />
+            ))}
+          </div>
         </div>
       </main>
 
