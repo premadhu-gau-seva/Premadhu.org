@@ -33,20 +33,38 @@ export async function POST(request: Request) {
       );
     }
 
-    const ext = file.name.split(".").pop() || "webp";
-    const cleanFilename = `members/${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 9)}.${ext}`;
+    // Check if Vercel Blob token is configured in environment
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    if (blobToken) {
+      try {
+        const ext = file.name.split(".").pop() || "webp";
+        const cleanFilename = `members/${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(2, 9)}.${ext}`;
 
-    // Upload to Vercel Blob storage using process.env.BLOB_READ_WRITE_TOKEN
-    const blob = await put(cleanFilename, file, {
-      access: "public",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    });
+        // Upload to Vercel Blob storage using process.env.BLOB_READ_WRITE_TOKEN
+        const blob = await put(cleanFilename, file, {
+          access: "public",
+          token: blobToken,
+        });
 
-    return NextResponse.json({ url: blob.url });
+        return NextResponse.json({ url: blob.url });
+      } catch (blobError) {
+        console.warn(
+          "Vercel Blob upload failed, falling back to base64 Data URL:",
+          blobError
+        );
+      }
+    }
+
+    // Fallback: Convert to base64 Data URL if BLOB_READ_WRITE_TOKEN is missing or fails
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimeType = file.type || "image/jpeg";
+    const base64DataUrl = `data:${mimeType};base64,${buffer.toString("base64")}`;
+
+    return NextResponse.json({ url: base64DataUrl });
   } catch (error: unknown) {
-    console.error("Vercel Blob upload error:", error);
+    console.error("Upload error:", error);
     const message =
       error instanceof Error ? error.message : "Failed to upload image";
     return NextResponse.json(

@@ -42,7 +42,8 @@ export function resolveMemberPhoto(
     if (
       trimmed.startsWith("http://") ||
       trimmed.startsWith("https://") ||
-      trimmed.startsWith("/")
+      trimmed.startsWith("/") ||
+      trimmed.startsWith("data:")
     ) {
       return trimmed;
     }

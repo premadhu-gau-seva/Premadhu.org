@@ -39,6 +39,7 @@ export default function MemberCard({
           src={imgSrc}
           alt={name}
           fill
+          unoptimized={imgSrc.startsWith("data:")}
           sizes="(max-width: 640px) 112px, 128px"
           className="object-cover group-hover:scale-110 transition-transform duration-300"
           onError={handleError}

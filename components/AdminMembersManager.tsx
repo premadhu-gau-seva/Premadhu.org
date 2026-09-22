@@ -467,6 +467,7 @@ export default function AdminMembersManager() {
                       src={formData.photoPreview}
                       alt="Preview"
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -676,6 +677,7 @@ export default function AdminMembersManager() {
                                 src={photo}
                                 alt={member.name}
                                 fill
+                                unoptimized={photo.startsWith("data:")}
                                 sizes="40px"
                                 className="object-cover"
                               />
@@ -775,6 +777,7 @@ export default function AdminMembersManager() {
                         src={editFormData.photoPreview}
                         alt="Preview"
                         fill
+                        unoptimized
                         className="object-cover"
                       />
                     </div>
