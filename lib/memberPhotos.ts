@@ -50,36 +50,33 @@ export function resolveMemberPhoto(
     return `/${trimmed}`;
   }
 
-  // 2. Check exact name match in known photos
   const cleanName = (name || "").trim();
-  if (KNOWN_MEMBER_PHOTOS[cleanName]) {
-    return KNOWN_MEMBER_PHOTOS[cleanName];
-  }
-
-  // 3. Check partial / case-insensitive keyword match in known photos
   const lowerName = cleanName.toLowerCase();
+
+  // 2. Check exact or case-insensitive match in known photos
   for (const [key, path] of Object.entries(KNOWN_MEMBER_PHOTOS)) {
-    const lowerKey = key.toLowerCase();
-    if (lowerName.includes(lowerKey) || lowerKey.includes(lowerName)) {
+    if (cleanName === key || lowerName === key.toLowerCase()) {
       return path;
     }
   }
 
-  // Common nicknames / partial names
-  if (lowerName.includes("ajay")) return "/Ajay Bajwa.jpeg";
-  if (lowerName.includes("poonam")) return "/Poonam.jpeg";
-  if (lowerName.includes("priyanka")) return "/Priyanka.jpeg";
-  if (lowerName.includes("sapna")) return "/Sapna.jpeg";
-  if (lowerName.includes("lalit")) return "/Lalit.jpeg";
-  if (lowerName.includes("shrivastav")) return "/Amit Shrivastav.jpeg";
-  if (lowerName.includes("nigam")) return "/Amit.jpeg";
-  if (lowerName.includes("rajesh") || lowerName.includes("rakesh")) return "/Rakesh.jpeg";
-  if (lowerName.includes("vidyavati")) return "/Vidyavati.jpeg";
-  if (lowerName.includes("atul") || lowerName.includes("pandey")) return "/Atul Pandey ji.jpeg";
-  if (lowerName.includes("pushpendra")) return "/Pushpendra.jpeg";
-  if (lowerName.includes("arti")) return "/Arti.jpeg";
+  // 3. Strict full-name / specific alias matching (word boundary only)
+  if (/\bajay\s+bajwa\b/i.test(cleanName)) return "/Ajay Bajwa.jpeg";
+  if (/\bpoonam(\s+s)?\b/i.test(cleanName)) return "/Poonam.jpeg";
+  if (/\bpriyanka\s+tiwari\b/i.test(cleanName)) return "/Priyanka.jpeg";
+  if (/\bsapna\s+nigam\b/i.test(cleanName)) return "/Sapna.jpeg";
+  if (/\blalit\s+tiwari\b/i.test(cleanName)) return "/Lalit.jpeg";
+  if (/\bamit(\s+kumar)?\s+shrivastav\b/i.test(cleanName)) return "/Amit Shrivastav.jpeg";
+  if (/\b(dr\s+)?amit\s+nigam\b/i.test(cleanName)) return "/Amit.jpeg";
+  if (/\b(rajesh|rakesh)\s+tiwari\b/i.test(cleanName)) return "/Rakesh.jpeg";
+  if (/\bvidyavati\s+tiwari\b/i.test(cleanName)) return "/Vidyavati.jpeg";
+  if (/\batul\s+pandey\b/i.test(cleanName)) return "/Atul Pandey ji.jpeg";
+  if (/^pushpendra(\s+tiwari)?$/i.test(cleanName)) return "/Pushpendra.jpeg";
+  if (/^(arti|aarti)(\s+tiwari)?$/i.test(cleanName)) return "/Arti.jpeg";
 
-  // 4. Default avatar based on gender guess
-  const isFemale = FEMALE_KEYWORDS.some((kw) => lowerName.includes(kw));
+  // 4. Default avatar based on gender guess (using word boundaries)
+  const isFemale = FEMALE_KEYWORDS.some((kw) =>
+    new RegExp(`\\b${kw}\\b`, "i").test(cleanName)
+  );
   return isFemale ? "/female.png" : "/male.png";
 }

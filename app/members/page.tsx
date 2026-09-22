@@ -148,8 +148,16 @@ export default async function MembersPage() {
     console.error("Error fetching members from database:", err);
   }
 
-  // Gracefully use default members if database is unpopulated or unreachable
-  const displayMembers = members.length > 0 ? members : DEFAULT_MEMBERS;
+  // Ensure all core team members are always present, seamlessly merged with all database members
+  const dbNames = new Set(members.map((m) => m.name.toLowerCase().trim()));
+  const missingCoreMembers = DEFAULT_MEMBERS.filter(
+    (core) => !dbNames.has(core.name.toLowerCase().trim())
+  );
+  const combinedMembers = [...members, ...missingCoreMembers].sort(
+    (a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name)
+  );
+  const displayMembers =
+    combinedMembers.length > 0 ? combinedMembers : DEFAULT_MEMBERS;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
