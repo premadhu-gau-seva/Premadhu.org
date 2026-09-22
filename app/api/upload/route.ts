@@ -33,22 +33,35 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if Vercel Blob token is configured in environment
-    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
-    if (blobToken) {
+    // Read the file buffer once upfront
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimeType = file.type || "image/jpeg";
+    const base64DataUrl = `data:${mimeType};base64,${buffer.toString("base64")}`;
+
+    // Check if valid Vercel Blob token is configured in environment
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+    if (
+      blobToken &&
+      blobToken !== "undefined" &&
+      blobToken !== "null" &&
+      blobToken.length > 10
+    ) {
       try {
         const ext = file.name.split(".").pop() || "webp";
         const cleanFilename = `members/${Date.now()}-${Math.random()
           .toString(36)
           .substring(2, 9)}.${ext}`;
 
-        // Upload to Vercel Blob storage using process.env.BLOB_READ_WRITE_TOKEN
-        const blob = await put(cleanFilename, file, {
+        // Upload buffer to Vercel Blob storage
+        const blob = await put(cleanFilename, buffer, {
           access: "public",
           token: blobToken,
+          contentType: mimeType,
         });
 
-        return NextResponse.json({ url: blob.url });
+        if (blob?.url) {
+          return NextResponse.json({ url: blob.url });
+        }
       } catch (blobError) {
         console.warn(
           "Vercel Blob upload failed, falling back to base64 Data URL:",
@@ -57,11 +70,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Fallback: Convert to base64 Data URL if BLOB_READ_WRITE_TOKEN is missing or fails
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const mimeType = file.type || "image/jpeg";
-    const base64DataUrl = `data:${mimeType};base64,${buffer.toString("base64")}`;
-
+    // Fallback: Return base64 Data URL if BLOB_READ_WRITE_TOKEN is missing or fails
     return NextResponse.json({ url: base64DataUrl });
   } catch (error: unknown) {
     console.error("Upload error:", error);

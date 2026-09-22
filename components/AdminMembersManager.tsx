@@ -171,22 +171,34 @@ export default function AdminMembersManager() {
     }
   };
 
-  // Helper to upload file to Blob storage API
+  // Helper to upload file to Blob storage API with client-side fallback
   const uploadPhotoToBlob = async (file: File): Promise<string> => {
-    const uploadData = new FormData();
-    uploadData.append("file", file);
+    try {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: uploadData,
-    });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      });
 
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to upload image to blob storage");
+      const data = await res.json();
+      if (res.ok && data.url) {
+        return data.url;
+      }
+      console.warn("Upload API failed, falling back to client-side base64:", data.error);
+    } catch (err) {
+      console.warn("Network error during upload, falling back to client-side base64:", err);
     }
 
-    return data.url;
+    // Direct client-side fallback to base64 Data URL
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   // Handle Add Member Submit
