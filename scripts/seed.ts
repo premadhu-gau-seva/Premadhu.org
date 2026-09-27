@@ -107,27 +107,6 @@ async function seed() {
         photo_url: "/Vidyavati.jpeg",
         sort_order: 10,
       },
-      {
-        name: "Ramesh Sharma",
-        designation: "Volunteer Coordinator",
-        bio: "Dedicated volunteer managing day-to-day operations and community outreach",
-        photo_url: "/male.png",
-        sort_order: 11,
-      },
-      {
-        name: "Sunita Patel",
-        designation: "Gau Seva Volunteer",
-        bio: "Passionate animal lover actively assisting in cow care and feeding programs",
-        photo_url: "/female.png",
-        sort_order: 12,
-      },
-      {
-        name: "Anil Kumar",
-        designation: "Animal Health Associate",
-        bio: "Assisting in veterinary care, medication schedules, and regular cow health checkups",
-        photo_url: "/male.png",
-        sort_order: 13,
-      },
     ];
 
     console.log("Checking existing members...");

@@ -105,37 +105,11 @@ const DEFAULT_MEMBERS: Member[] = [
     sort_order: 10,
     created_at: new Date(),
   },
-  {
-    id: 11,
-    name: "Ramesh Sharma",
-    designation: "Volunteer Coordinator",
-    bio: "Dedicated volunteer managing day-to-day operations and community outreach",
-    photo_url: "/male.png",
-    sort_order: 10,
-    created_at: new Date(),
-  },
-  {
-    id: 12,
-    name: "Sunita Patel",
-    designation: "Gau Seva Volunteer",
-    bio: "Passionate animal lover actively assisting in cow care and feeding programs",
-    photo_url: "/female.png",
-    sort_order: 11,
-    created_at: new Date(),
-  },
-  {
-    id: 13,
-    name: "Anil Kumar",
-    designation: "Animal Health Associate",
-    bio: "Assisting in veterinary care, medication schedules, and regular cow health checkups",
-    photo_url: "/male.png",
-    sort_order: 12,
-    created_at: new Date(),
-  },
 ];
 
 export default async function MembersPage() {
   let members: Member[] = [];
+  let dbError = false;
 
   try {
     const result = await sql<Member>`
@@ -146,18 +120,12 @@ export default async function MembersPage() {
     members = result.rows;
   } catch (err) {
     console.error("Error fetching members from database:", err);
+    dbError = true;
   }
 
-  // Ensure all core team members are always present, seamlessly merged with all database members
-  const dbNames = new Set(members.map((m) => m.name.toLowerCase().trim()));
-  const missingCoreMembers = DEFAULT_MEMBERS.filter(
-    (core) => !dbNames.has(core.name.toLowerCase().trim())
-  );
-  const combinedMembers = [...members, ...missingCoreMembers].sort(
-    (a, b) => a.sort_order - b.sort_order || a.name.localeCompare(b.name)
-  );
+  // Use database members as single source of truth; fall back to default core team only if DB query failed or table is completely empty
   const displayMembers =
-    combinedMembers.length > 0 ? combinedMembers : DEFAULT_MEMBERS;
+    !dbError && members.length > 0 ? members : DEFAULT_MEMBERS;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
