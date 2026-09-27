@@ -9,6 +9,8 @@ import Feedback from "@/components/Feedback";
 import Team from "@/components/Team";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-white">

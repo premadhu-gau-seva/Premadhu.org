@@ -6,13 +6,23 @@ import { sql, Member } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 // GET /api/members - Fetch all members ordered by sort_order, then name
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const { rows } = await sql<Member>`
-      SELECT id, name, designation, bio, photo_url, sort_order, created_at
-      FROM members
-      ORDER BY sort_order ASC, name ASC
-    `;
+    const { searchParams } = new URL(request.url);
+    const coreOnly = searchParams.get("core") === "true";
+
+    const { rows } = coreOnly
+      ? await sql<Member>`
+          SELECT id, name, designation, bio, photo_url, sort_order, is_core, created_at
+          FROM members
+          WHERE is_core = true
+          ORDER BY sort_order ASC, name ASC
+        `
+      : await sql<Member>`
+          SELECT id, name, designation, bio, photo_url, sort_order, is_core, created_at
+          FROM members
+          ORDER BY sort_order ASC, name ASC
+        `;
     return NextResponse.json(rows);
   } catch (error) {
     console.error("Error fetching members:", error);
@@ -32,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, designation, bio, photo_url, sort_order } = body;
+    const { name, designation, bio, photo_url, sort_order, is_core } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -53,6 +63,8 @@ export async function POST(request: Request) {
         ? parseInt(String(sort_order), 10)
         : 0;
 
+    const isCore = Boolean(is_core);
+
     const cleanBio =
       bio && typeof bio === "string" && bio.trim().length > 0
         ? bio.trim()
@@ -64,9 +76,9 @@ export async function POST(request: Request) {
         : null;
 
     const { rows } = await sql<Member>`
-      INSERT INTO members (name, designation, bio, photo_url, sort_order)
-      VALUES (${name.trim()}, ${designation.trim()}, ${cleanBio}, ${cleanPhotoUrl}, ${parsedSortOrder})
-      RETURNING id, name, designation, bio, photo_url, sort_order, created_at
+      INSERT INTO members (name, designation, bio, photo_url, sort_order, is_core)
+      VALUES (${name.trim()}, ${designation.trim()}, ${cleanBio}, ${cleanPhotoUrl}, ${parsedSortOrder}, ${isCore})
+      RETURNING id, name, designation, bio, photo_url, sort_order, is_core, created_at
     `;
 
     // Revalidate public routes to reflect the change immediately

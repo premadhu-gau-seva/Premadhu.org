@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Camera,
   ImageIcon,
+  Star,
 } from "lucide-react";
 import { Member } from "@/lib/db";
 import { compressImage } from "@/lib/imageUtils";
@@ -28,6 +29,7 @@ interface MemberFormData {
   designation: string;
   bio: string;
   sort_order: number | string;
+  is_core: boolean;
   photo_url: string | null;
   photoFile: File | null;
   photoPreview: string | null;
@@ -38,6 +40,7 @@ const INITIAL_FORM_DATA: MemberFormData = {
   designation: "",
   bio: "",
   sort_order: "",
+  is_core: false,
   photo_url: null,
   photoFile: null,
   photoPreview: null,
@@ -45,6 +48,7 @@ const INITIAL_FORM_DATA: MemberFormData = {
 
 export default function AdminMembersManager() {
   const [members, setMembers] = useState<Member[]>([]);
+  const [filterTab, setFilterTab] = useState<"all" | "core" | "general">("all");
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
@@ -233,6 +237,7 @@ export default function AdminMembersManager() {
             formData.sort_order === ""
               ? members.length + 1
               : parseInt(String(formData.sort_order), 10),
+          is_core: Boolean(formData.is_core),
         }),
       });
 
@@ -267,6 +272,7 @@ export default function AdminMembersManager() {
       designation: member.designation,
       bio: member.bio || "",
       sort_order: member.sort_order,
+      is_core: Boolean(member.is_core),
       photo_url: member.photo_url,
       photoFile: null,
       photoPreview: member.photo_url,
@@ -306,6 +312,7 @@ export default function AdminMembersManager() {
             editFormData.sort_order === ""
               ? 0
               : parseInt(String(editFormData.sort_order), 10),
+          is_core: Boolean(editFormData.is_core),
         }),
       });
 
@@ -362,6 +369,59 @@ export default function AdminMembersManager() {
       setIsSubmitting(false);
     }
   };
+
+  // Quick Toggle Core Status
+  const handleToggleCore = async (member: Member) => {
+    const updatedStatus = !member.is_core;
+    try {
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.id === member.id ? { ...m, is_core: updatedStatus } : m
+        )
+      );
+
+      const res = await fetch(`/api/members/${member.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: member.name,
+          designation: member.designation,
+          bio: member.bio,
+          photo_url: member.photo_url,
+          sort_order: member.sort_order,
+          is_core: updatedStatus,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to update core status");
+      }
+
+      setFeedback({
+        type: "success",
+        message: `"${member.name}" ${
+          updatedStatus ? "added to" : "removed from"
+        } Core Team.`,
+      });
+      refreshMembers();
+    } catch (err: unknown) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Error updating member";
+      setFeedback({
+        type: "error",
+        message: errorMsg,
+      });
+      refreshMembers();
+    }
+  };
+
+  const coreCount = members.filter((m) => m.is_core).length;
+  const generalCount = members.length - coreCount;
+  const filteredMembers = members.filter((m) => {
+    if (filterTab === "core") return m.is_core;
+    if (filterTab === "general") return !m.is_core;
+    return true;
+  });
 
   return (
     <div className="space-y-8">
@@ -606,6 +666,28 @@ export default function AdminMembersManager() {
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50/50 focus:bg-white transition-all resize-y"
                 />
               </div>
+
+              {/* Core Member Toggle */}
+              <div className="sm:col-span-2 p-4 rounded-2xl border border-amber-200 bg-amber-50/60 flex items-start gap-3.5 transition-colors">
+                <input
+                  type="checkbox"
+                  id="add_is_core"
+                  checked={formData.is_core}
+                  onChange={(e) =>
+                    setFormData({ ...formData, is_core: e.target.checked })
+                  }
+                  className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary"
+                />
+                <label htmlFor="add_is_core" className="cursor-pointer select-none flex-1">
+                  <span className="text-sm font-bold text-text-dark flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    Core Team Member (Show on Main Page)
+                  </span>
+                  <p className="text-xs text-text-light mt-0.5 leading-relaxed">
+                    Check this if the member belongs to the Core Team. Their card will automatically appear in the <strong>&quot;Our Core Team&quot;</strong> section on the homepage and in the general members directory.
+                  </p>
+                </label>
+              </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
@@ -640,6 +722,46 @@ export default function AdminMembersManager() {
 
       {/* Members List Table */}
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Filter Tabs */}
+        {!isLoading && members.length > 0 && (
+          <div className="flex items-center gap-2 p-4 bg-gray-50/70 border-b border-gray-100 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => setFilterTab("all")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                filterTab === "all"
+                  ? "bg-primary text-white shadow-xs"
+                  : "bg-white text-text-light hover:text-text-dark border border-gray-200"
+              }`}
+            >
+              All Members ({members.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab("core")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                filterTab === "core"
+                  ? "bg-primary text-white shadow-xs"
+                  : "bg-white text-text-light hover:text-text-dark border border-gray-200"
+              }`}
+            >
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Core Team ({coreCount})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab("general")}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap ${
+                filterTab === "general"
+                  ? "bg-primary text-white shadow-xs"
+                  : "bg-white text-text-light hover:text-text-dark border border-gray-200"
+              }`}
+            >
+              General Members ({generalCount})
+            </button>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="p-12 text-center text-text-light flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
@@ -653,6 +775,18 @@ export default function AdminMembersManager() {
               Get started by adding your first organization member using the &quot;Add Member&quot; button above.
             </p>
           </div>
+        ) : filteredMembers.length === 0 ? (
+          <div className="p-12 text-center text-text-light space-y-3">
+            <Users className="w-12 h-12 text-gray-300 mx-auto" />
+            <h3 className="text-base font-bold text-text-dark">
+              No {filterTab === "core" ? "Core" : "General"} Members
+            </h3>
+            <p className="text-sm text-text-light max-w-sm mx-auto">
+              {filterTab === "core"
+                ? "No members are currently designated as Core Team members. Edit a member or click the star icon to feature them on the main page."
+                : "All members are currently part of the Core Team."}
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -660,13 +794,13 @@ export default function AdminMembersManager() {
                 <tr className="bg-gray-50/80 border-b border-gray-100 text-[11px] font-bold uppercase tracking-wider text-text-light">
                   <th className="py-3.5 px-4 sm:px-6 w-16 text-center">Order</th>
                   <th className="py-3.5 px-4 sm:px-6">Member</th>
-                  <th className="py-3.5 px-4 sm:px-6">Designation</th>
+                  <th className="py-3.5 px-4 sm:px-6">Designation &amp; Status</th>
                   <th className="py-3.5 px-4 sm:px-6 hidden md:table-cell">Bio</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
-                {members.map((member) => (
+                {filteredMembers.map((member) => (
                   <tr
                     key={member.id}
                     className="hover:bg-gray-50/60 transition-colors group"
@@ -700,17 +834,37 @@ export default function AdminMembersManager() {
                             </div>
                           );
                         })()}
-                        <span className="font-semibold text-text-dark">
-                          {member.name}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-text-dark">
+                            {member.name}
+                          </span>
+                          {member.is_core && (
+                            <span className="text-[11px] text-amber-700 font-medium sm:hidden flex items-center gap-1 mt-0.5">
+                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                              Core Team (Homepage)
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
 
-                    {/* Designation */}
+                    {/* Designation & Status */}
                     <td className="py-4 px-4 sm:px-6">
-                      <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary-dark">
-                        {member.designation}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="inline-block px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary-dark">
+                          {member.designation}
+                        </span>
+                        {member.is_core ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200" title="Displayed on Main Landing Page">
+                            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                            <span>Core Team</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium text-gray-500 bg-gray-100" title="Displayed on Members page only">
+                            Member
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     {/* Bio */}
@@ -723,6 +877,23 @@ export default function AdminMembersManager() {
                     {/* Actions */}
                     <td className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
                       <div className="inline-flex items-center gap-1.5">
+                        {/* Quick toggle core */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCore(member)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+                            member.is_core
+                              ? "text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200"
+                              : "text-gray-500 hover:text-amber-700 hover:bg-amber-50 border border-gray-200"
+                          }`}
+                          title={member.is_core ? "Remove from Core Team (Main Page)" : "Promote to Core Team (Main Page)"}
+                        >
+                          <Star className={`w-3.5 h-3.5 ${member.is_core ? "fill-amber-500 text-amber-500" : "text-gray-400"}`} />
+                          <span className="hidden lg:inline">
+                            {member.is_core ? "Core" : "Make Core"}
+                          </span>
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleStartEdit(member)}
@@ -906,6 +1077,28 @@ export default function AdminMembersManager() {
                   }
                   className="w-full px-4 py-2.5 text-sm rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-y"
                 />
+              </div>
+
+              {/* Core Member Toggle in Edit Modal */}
+              <div className="p-4 rounded-2xl border border-amber-200 bg-amber-50/60 flex items-start gap-3.5 transition-colors">
+                <input
+                  type="checkbox"
+                  id="edit_is_core"
+                  checked={editFormData.is_core}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, is_core: e.target.checked })
+                  }
+                  className="mt-1 w-4 h-4 text-primary rounded border-gray-300 focus:ring-primary cursor-pointer accent-primary"
+                />
+                <label htmlFor="edit_is_core" className="cursor-pointer select-none flex-1">
+                  <span className="text-sm font-bold text-text-dark flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    Core Team Member (Show on Main Page)
+                  </span>
+                  <p className="text-xs text-text-light mt-0.5 leading-relaxed">
+                    Check this to display this member on the main page&apos;s <strong>&quot;Our Core Team&quot;</strong> section. Uncheck to keep them only in the general directory.
+                  </p>
+                </label>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-5 border-t border-gray-100">

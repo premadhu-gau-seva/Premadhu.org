@@ -7,6 +7,7 @@ export interface Member {
   bio: string | null;
   photo_url: string | null;
   sort_order: number;
+  is_core: boolean;
   created_at: string | Date;
 }
 
@@ -16,6 +17,7 @@ export type NewMember = {
   bio?: string | null;
   photo_url?: string | null;
   sort_order?: number;
+  is_core?: boolean;
 };
 
 export { sql, db, createPool };

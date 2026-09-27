@@ -8,8 +8,10 @@ CREATE TABLE IF NOT EXISTS members (
   bio TEXT,
   photo_url TEXT,
   sort_order INTEGER DEFAULT 0,
+  is_core BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Index for ordering members efficiently
 CREATE INDEX IF NOT EXISTS idx_members_sort_order ON members (sort_order ASC, id ASC);
+CREATE INDEX IF NOT EXISTS idx_members_is_core ON members (is_core, sort_order ASC, id ASC);

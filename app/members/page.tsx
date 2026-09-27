@@ -22,6 +22,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: null,
     photo_url: "/Atul Pandey ji.jpeg",
     sort_order: 1,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -31,6 +32,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "A teacher by profession and highly active in many social activities",
     photo_url: "/Priyanka.jpeg",
     sort_order: 2,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -40,6 +42,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "A doctor by profession and active in social and community welfare",
     photo_url: "/Sapna.jpeg",
     sort_order: 3,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -49,6 +52,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Businessman in reality sector, runs blood donation camps and financial aids to poor",
     photo_url: "/Lalit.jpeg",
     sort_order: 4,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -58,6 +62,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Policy Advisor, dedicated to social welfare and development",
     photo_url: "/Amit Shrivastav.jpeg",
     sort_order: 5,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -67,6 +72,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Professional medical practitioner and active social activist for shelterless people",
     photo_url: "/Amit.jpeg",
     sort_order: 6,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -76,6 +82,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Business Man and Dedicated to Social Works, Runs Fundraising Camps for Welfare of People and Animals",
     photo_url: "/Ajay Bajwa.jpeg",
     sort_order: 7,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -85,6 +92,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "House Wife and Compassionate social worker dedicated to community welfare",
     photo_url: "/Poonam.jpeg",
     sort_order: 8,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -94,6 +102,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Goat former and working for woman empowerment in rural areas",
     photo_url: "/Rakesh.jpeg",
     sort_order: 9,
+    is_core: true,
     created_at: new Date(),
   },
   {
@@ -103,6 +112,7 @@ const DEFAULT_MEMBERS: Member[] = [
     bio: "Housewife, highly active in spiritual and social works",
     photo_url: "/Vidyavati.jpeg",
     sort_order: 10,
+    is_core: true,
     created_at: new Date(),
   },
 ];
@@ -113,7 +123,7 @@ export default async function MembersPage() {
 
   try {
     const result = await sql<Member>`
-      SELECT id, name, designation, bio, photo_url, sort_order, created_at
+      SELECT id, name, designation, bio, photo_url, sort_order, is_core, created_at
       FROM members
       ORDER BY sort_order ASC, name ASC
     `;

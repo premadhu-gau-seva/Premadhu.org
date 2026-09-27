@@ -18,7 +18,7 @@ export async function GET(
     }
 
     const { rows } = await sql<Member>`
-      SELECT id, name, designation, bio, photo_url, sort_order, created_at
+      SELECT id, name, designation, bio, photo_url, sort_order, is_core, created_at
       FROM members
       WHERE id = ${memberId}
     `;
@@ -55,7 +55,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { name, designation, bio, photo_url, sort_order } = body;
+    const { name, designation, bio, photo_url, sort_order, is_core } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
@@ -76,6 +76,8 @@ export async function PUT(
         ? parseInt(String(sort_order), 10)
         : 0;
 
+    const isCore = Boolean(is_core);
+
     const cleanBio =
       bio && typeof bio === "string" && bio.trim().length > 0
         ? bio.trim()
@@ -94,9 +96,10 @@ export async function PUT(
           designation = ${designation.trim()},
           bio = ${cleanBio},
           photo_url = ${cleanPhotoUrl},
-          sort_order = ${parsedSortOrder}
+          sort_order = ${parsedSortOrder},
+          is_core = ${isCore}
       WHERE id = ${memberId}
-      RETURNING id, name, designation, bio, photo_url, sort_order, created_at
+      RETURNING id, name, designation, bio, photo_url, sort_order, is_core, created_at
     `;
 
     if (rows.length === 0) {
