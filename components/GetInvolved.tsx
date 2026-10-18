@@ -70,7 +70,11 @@ export default function GetInvolved() {
         </div>
 
         {/* 3 Involvement Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+        <div
+          className={`grid grid-cols-1 md:grid-cols-3 gap-8 ${
+            isDonateExpanded ? "md:items-start" : "items-stretch"
+          }`}
+        >
           {/* Donate Card */}
           <div
             onClick={toggleDonate}
@@ -86,7 +90,7 @@ export default function GetInvolved() {
             tabIndex={0}
             role="region"
             aria-label="Donation information"
-            className={`bg-white p-8 sm:p-10 rounded-2xl shadow-md transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100 relative cursor-pointer ${
+            className={`bg-white p-8 sm:p-10 rounded-2xl shadow-md transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100 relative cursor-pointer h-full ${
               isDonateExpanded
                 ? "shadow-2xl ring-2 ring-primary/20"
                 : "hover:shadow-2xl hover:-translate-y-2"
@@ -111,8 +115,10 @@ export default function GetInvolved() {
               <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 text-white shadow-md flex-shrink-0">
                 <HeartHandshake className="w-11 h-11" />
               </div>
-              <h3 className="text-2xl font-bold text-text-dark mb-3">Donate</h3>
-              <p className="text-text-light text-base mb-6 leading-relaxed">
+              <h3 className="text-2xl font-bold text-text-dark mb-3 min-h-[2rem] md:min-h-[3.5rem] flex items-center justify-center">
+                Donate
+              </h3>
+              <p className="text-text-light text-base mb-8 leading-relaxed min-h-[3rem] sm:min-h-[4rem] flex items-center justify-center">
                 Your contributions help us provide food, shelter, and medical
                 care for cows.
               </p>
@@ -198,13 +204,15 @@ export default function GetInvolved() {
           </div>
 
           {/* Volunteer Card */}
-          <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100">
-            <div className="flex flex-col items-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 text-white shadow-md">
+          <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100 h-full">
+            <div className="flex flex-col items-center w-full">
+              <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 text-white shadow-md flex-shrink-0">
                 <Users2 className="w-11 h-11" />
               </div>
-              <h3 className="text-2xl font-bold text-text-dark mb-3">Volunteer</h3>
-              <p className="text-text-light text-base mb-8 leading-relaxed">
+              <h3 className="text-2xl font-bold text-text-dark mb-3 min-h-[2rem] md:min-h-[3.5rem] flex items-center justify-center">
+                Volunteer
+              </h3>
+              <p className="text-text-light text-base mb-8 leading-relaxed min-h-[3rem] sm:min-h-[4rem] flex items-center justify-center">
                 Be a part of our Gau Seva family by volunteering at our gaushala.
               </p>
             </div>
@@ -212,30 +220,30 @@ export default function GetInvolved() {
               href="https://docs.google.com/forms/d/e/1FAIpQLSeJe1akyU-O0LiwfF9MVKRlxMVgJ5G6HQE4vbz66enON5P5yQ/viewform?usp=dialog"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-3 px-6 bg-transparent border-2 border-primary text-primary font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-200"
+              className="w-full py-3 px-6 bg-transparent border-2 border-primary text-primary font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-200 flex items-center justify-center"
             >
               Join Us
             </a>
           </div>
 
           {/* Spread Awareness Card */}
-          <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100">
-            <div className="flex flex-col items-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 text-white shadow-md">
+          <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 text-center flex flex-col items-center justify-between border border-gray-100 h-full">
+            <div className="flex flex-col items-center w-full">
+              <div className="w-24 h-24 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center mb-6 text-white shadow-md flex-shrink-0">
                 <Megaphone className="w-11 h-11" />
               </div>
-              <h3 className="text-2xl font-bold text-text-dark mb-3">
+              <h3 className="text-2xl font-bold text-text-dark mb-3 min-h-[2rem] md:min-h-[3.5rem] flex items-center justify-center">
                 Spread Awareness
               </h3>
-              <p className="text-text-light text-base mb-8 leading-relaxed">
-                Share our mission with your community to inspire others to
-                support cow welfare.
+              <p className="text-text-light text-base mb-8 leading-relaxed min-h-[3rem] sm:min-h-[4rem] flex items-center justify-center">
+                Share our mission with your community to inspire support for
+                cow welfare.
               </p>
             </div>
             <button
               type="button"
               onClick={handleShare}
-              className="w-full py-3 px-6 bg-transparent border-2 border-primary text-primary font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer"
+              className="w-full py-3 px-6 bg-transparent border-2 border-primary text-primary font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-200 cursor-pointer flex items-center justify-center"
             >
               {shared ? "Link Copied!" : "Share"}
             </button>
