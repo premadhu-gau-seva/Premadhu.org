@@ -1,11 +1,29 @@
-import Image from "next/image";
+import { sql, AboutPhoto, DEFAULT_ABOUT_PHOTOS, ensureAboutPhotosTable } from "@/lib/db";
+import AboutImageCarousel from "@/components/AboutImageCarousel";
 
-export default function About() {
+export default async function About() {
   const stats = [
     { count: "500+", label: "Cows Protected" },
     { count: "50+", label: "Lives Touched" },
     { count: "1+", label: "Years of Service" },
   ];
+
+  let photos: AboutPhoto[] = [];
+  try {
+    await ensureAboutPhotosTable();
+    const result = await sql<AboutPhoto>`
+      SELECT id, url, caption, sort_order, created_at
+      FROM about_photos
+      ORDER BY sort_order ASC, id ASC
+    `;
+    if (result && result.rows && result.rows.length > 0) {
+      photos = result.rows;
+    }
+  } catch (err) {
+    console.error("Error fetching about photos from database:", err);
+  }
+
+  const displayPhotos = photos.length > 0 ? photos : DEFAULT_ABOUT_PHOTOS;
 
   return (
     <section id="about" className="py-20 md:py-28 bg-white">
@@ -52,21 +70,9 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right Column: Image */}
+          {/* Right Column: Interactive Photo Carousel */}
           <div className="lg:col-span-5">
-            <div className="relative w-full h-80 sm:h-96 md:h-[420px] rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 group border border-gray-100">
-              <Image
-                src="/Cow.jpg"
-                alt="Our Gaushala - Cows being cared for at Premadhu Gau Seva Samiti"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                <p className="text-white text-sm font-medium">
-                  Cows being cared for with love at Premadhu Gau Seva Samiti
-                </p>
-              </div>
-            </div>
+            <AboutImageCarousel initialPhotos={displayPhotos} />
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LogOut, Globe, ExternalLink, ShieldCheck } from "lucide-react";
 import { auth, signOut } from "@/auth";
-import AdminMembersManager from "@/components/AdminMembersManager";
+import AdminDashboardTabs from "@/components/AdminDashboardTabs";
 
 export const metadata: Metadata = {
   title: "Admin Portal - Premadhu Gau Seva Samiti",
@@ -87,9 +87,9 @@ export default async function AdminPage() {
           </div>
         </header>
 
-        {/* Main Member Management System */}
+        {/* Main Admin Management System */}
         <main>
-          <AdminMembersManager />
+          <AdminDashboardTabs />
         </main>
       </div>
     </div>

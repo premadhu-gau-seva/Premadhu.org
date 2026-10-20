@@ -35,8 +35,17 @@ async function seed() {
       );
       CREATE INDEX IF NOT EXISTS idx_members_sort_order ON members (sort_order ASC, id ASC);
       CREATE INDEX IF NOT EXISTS idx_members_is_core ON members (is_core, sort_order ASC, id ASC);
+
+      CREATE TABLE IF NOT EXISTS about_photos (
+        id SERIAL PRIMARY KEY,
+        url TEXT NOT NULL,
+        caption TEXT,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_about_photos_sort_order ON about_photos (sort_order ASC, id ASC);
     `);
-    console.log("✓ 'members' table ready.");
+    console.log("✓ 'members' and 'about_photos' tables ready.");
 
     const sampleMembers = [
       {
@@ -167,12 +176,33 @@ async function seed() {
       }
     }
 
+    console.log("Checking existing about photos...");
+    const { rows: existingPhotos } = await client.query(
+      "SELECT count(*) FROM about_photos"
+    );
+    const photoCount = parseInt(existingPhotos[0].count, 10);
+    if (photoCount === 0) {
+      console.log("Seeding default about photo...");
+      await client.query(
+        `INSERT INTO about_photos (url, caption, sort_order)
+         VALUES ($1, $2, $3)`,
+        ["/Cow.jpg", "Cows being cared for with love at Premadhu Gau Seva Samiti", 1]
+      );
+      console.log("✓ Seeded default about photo.");
+    }
+
     const { rows: allMembers } = await client.query(
       "SELECT id, name, designation, photo_url, sort_order, is_core, created_at FROM members ORDER BY sort_order ASC, id ASC"
     );
 
     console.log("\nCurrent members in database:");
     console.table(allMembers);
+
+    const { rows: allPhotos } = await client.query(
+      "SELECT id, url, caption, sort_order, created_at FROM about_photos ORDER BY sort_order ASC, id ASC"
+    );
+    console.log("\nCurrent about photos in database:");
+    console.table(allPhotos);
     console.log("✓ Database seeding complete!");
   } catch (error) {
     console.error("Error during database seed:", error);
